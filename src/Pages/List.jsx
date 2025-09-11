@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 
 const List = ({ token }) => {
   const [list, setList] = useState([]);
-  const [loading, setLoading] = useState(false); // lowercase for convention
+  const [loading, setLoading] = useState(false); 
 
   const fetchList = async () => {
     try {

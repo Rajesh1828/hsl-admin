@@ -29,29 +29,34 @@ const Login = ({setToken}) => {
  }
 
     return (
-        <div className='bg-gray-50 min-h-screen flex items-center justify-center'>
-            <div className="flex flex-col bg-white gap-5 p-8 rounded-lg shadow-md min-w-[300px]">
+        <div className=' min-h-screen flex items-center justify-center' style={{
+            backgroundImage:`url('https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80')`,
+            backgroundSize:'cover',
+            backgroundPosition:'center',
+            backgroundRepeat:'no-repeat'
+        }}>
+            <div className="flex flex-col bg-white/70 gap-5 p-8 rounded-lg shadow-md min-w-[300px]">
                 <h2 className='text-2xl font-bold text-center text-gray-800'>Admin Panel</h2>
                 <form onSubmit={onSubmitHandler}>
                     <div className='mb-4 '>
-                        <p className='text-sm font-medium text-gray-700  mb-1'>Email-Address</p>
+                        <p className='text-sm font-medium text-gray-900  mb-1'>Email-Address</p>
                         <input onChange={(e)=>setEmail(e.target.value)} type='email'
-                            className='w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                            className='w-full px-4 py-2 border  rounded-md '
                             placeholder='Email-Address'
                             required
                         />
                     </div>
                     <div className='mb-4 '>
-                        <p className='text-sm font-medium text-gray-700  mb-1'>Email-Address</p>
+                        <p className='text-sm font-medium text-gray-900  mb-1'>Email-Address</p>
                         <input onChange={(e)=>setPassword(e.target.value)} type='password'
-                            className='w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+                            className='w-full px-4 py-2 rounded-md  '
                             placeholder='Password'
                             required
                         />
                     </div>
 
                     <button
-                        className="bg-red-600 hover:bg-red-700 transition text-white w-full py-2 rounded-full"
+                        className="bg-gray-600 hover:bg-gray-700 transition text-white w-full py-2 rounded-full"
                         type="submit"
                     >
                         Login
