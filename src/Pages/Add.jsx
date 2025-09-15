@@ -1,218 +1,123 @@
-import React, { useState } from 'react';
-import { assets } from '../assets/assets/assets';
 import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { backend_url } from '../App';
 import { toast } from 'react-toastify';
 
-const Add = ({token}) => {
+const List = ({ token }) => {
+  const [list, setList] = useState([]);
+  const [loading, setLoading] = useState(false); 
 
-  const [image, setImage] = useState(false)
-  const [name, setName] = useState("")
-  const [description, setDescription] = useState("")
-  const [price, setPrice] = useState("")
-  const [sizes, setSizes] = useState([])
-  const [material, setMaterial] = useState("")
-  const [code, setCode] = useState("")
-  const [model, setModel] = useState("")
-  const [category, setCategory] = useState("certificate")
-  const [brand, setBrand] = useState("")
-  const [features, setFeatures] = useState("")
-  const [loading, setLoading] = useState(false)
-
-  const onSubmitHandler = async(e)=>{
-    e.preventDefault();
-        setLoading(true); 
-
+  const fetchList = async () => {
     try {
-      const formData = new FormData();
-      formData.append("images", image);
-      formData.append("name", name);
-      formData.append("description", description);
-      formData.append("price", price);
-      formData.append("sizes", JSON.stringify(sizes));
-      formData.append("material", material);
-      formData.append("code", code);
-      formData.append("model", model);
-      formData.append("category", category);
-      formData.append("brand", brand);
-      formData.append("features", features);
+      setLoading(true); 
+      const response = await fetch(
+        'https://hslbackend-5.onrender.com/api/product/list',
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const data = await response.json();
+      setList(data.products || []);
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message || 'Something went wrong');
+    } finally {
+      setLoading(false); 
+    }
+  };
 
-      const response = await axios.post(backend_url + "/api/product/add", formData,{headers:{token}});
-      if(response.data.success){
+  const removeProduct = async (id) => {
+    try {
+      setLoading(true);
+      const response = await axios.delete(
+        `${backend_url}/api/product/delete/${id}`,
+        { headers: { token } }
+      );
 
-        toast.success(response.data.message);
-
-        setImage(false);
-        setName("");
-        setDescription("");
-        setPrice("");
-        setSizes([]);
-        setMaterial("");
-        setCode("");
-        setModel("");
-        setCategory("certificate");
-        setBrand("");
-        setFeatures("");
-      }
-      else{
-        toast.error(response.data.message);
+      if (response.data.success) {
+        toast.success(response.data.message || 'Product deleted successfully');
+        await fetchList();
+      } else {
+        toast.error(response.data.message || 'Failed to delete product');
       }
     } catch (error) {
       console.log(error);
-      toast.error(error.message);
-      
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error(error.message || 'Something went wrong');
+      }
+    } finally {
+      setLoading(false);
     }
-    finally{
-      setLoading(false); 
-    }
+  };
 
-
-  }
+  useEffect(() => {
+    fetchList();
+  }, []);
 
   return (
-    <form onSubmit={onSubmitHandler} className="flex flex-col w-full items-start gap-4 p-4  rounded-lg ">
-      {/* Upload Image */}
-      <div>
-        <p className="mb-2 font-semibold">Upload Image</p>
-        <label
-          htmlFor="image"
-          className="flex flex-col items-center justify-center w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition"
-        >
-          <img src={!image ? assets.upload_area : URL.createObjectURL(image)} className="w-12" alt="Upload" />
-          <input onChange={(e) => setImage(e.target.files[0])} type="file" id="image" hidden />
-        </label>
+  <>
+  <p className="mb-2">All products List</p>
+
+  {loading ? (
+    <div className="flex justify-center items-center py-10">
+      <div className="h-8 w-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+      <p className="ml-3 text-green-600">Loading Products...</p>
+    </div>
+  ) : (
+    <div className="flex flex-col gap-2 mb-2">
+      {/* Header Row */}
+      <div className="hidden text-amber-950 md:grid md:grid-cols-8 items-center py-1 px-2 bg-gray-100">
+        <b>Images</b>
+        <b>Name</b>
+        <b>Category</b>
+        <b>Price</b>
+        <b>Code</b>
+        <b>Brand</b>
+        <b>Features</b>
+        <b className="text-red-500">Action</b>
       </div>
 
-      {/* Product Name */}
-      <div className="w-full">
-        <p className="mb-1 font-semibold">Product Name</p>
-        <input
-          onChange={(e) => setName(e.target.value)} value={name}
-          className="w-full max-w-[400px] p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          type="text"
-          placeholder="Enter product name"
-          required
-        />
-      </div>
-
-      {/* Product Description */}
-      <div className="w-full">
-        <p className="mb-1 font-semibold">Product Description</p>
-        <textarea
-          onChange={(e) => setDescription(e.target.value)} value={description}
-          className="w-full max-w-[400px] p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Write your description..."
-          required
-        />
-      </div>
-
-      {/* Category & Price */}
-      <div className="w-full flex flex-col sm:flex-row sm:items-center gap-4">
-        <div className="flex-1">
-          <p className="mb-1 font-semibold">Product Category</p>
-          <select onChange={(e) => setCategory(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="buttonfiles">Button Files</option>
-            <option value="certificates">Certificates</option>
-            <option value="zipfiles">Zip Files</option>
-            <option value="stripfiles">Strip Files</option>
-            <option value="documentbag">Document bag</option>
-            <option value="displaybook">Display Book</option>
-            <option value="spiralbooks">Spiral Books</option>
-            <option value="zipperbags">Zipper Bags</option>
-            <option value="securitybags">Security Bags</option>
-            <option value="clipfiles">Clip Files</option>
-            <option value="boxfiles">Box Files</option>
-
-
-
-          </select>
-        </div>
-
-        <div className="flex-1">
-          <p className="mb-1 font-semibold">Product Price</p>
-          <input
-            onChange={(e) => setPrice(e.target.value)}
-            type="number"
-            placeholder="24"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-      </div>
-
-      {/* sizes */}
-      <div>
-        <p className="mb-2 font-semibold">Product Sizes</p>
-        <div className="flex flex-wrap gap-3">
-          {["A1", "A2", "A3", "A4", "A5", "F/C"].map((size) => (
-            <div
-              key={size}
-              onClick={() =>
-                setSizes((prev) =>
-                  prev.includes(size)
-                    ? prev.filter((item) => item !== size)
-                    : [...prev, size]
-                )
-              }
-              className={`px-4 py-2 rounded-md cursor-pointer border transition
-          ${sizes.includes(size)
-                  ? "bg-pink-200 border-pink-400 text-pink-800"
-                  : "bg-gray-100 border-gray-300 hover:bg-gray-200"
-                }`}
+      {/* Rows */}
+      {list.length === 0 ? (
+        <p className="text-center py-4 text-gray-500">No products found</p>
+      ) : (
+        list.map((item) => (
+          <div
+            key={item._id}
+            className="
+              grid gap-2 p-2 border bg-white/55 items-center
+              grid-cols-2
+              sm:grid-cols-3
+              md:grid-cols-8
+            "
+          >
+            <img className="w-16" src={item.images[0]} alt={item.name} />
+            <p>{item.name}</p>
+            <p className="hidden md:block">{item.category}</p>
+            <p>₹{item.price}</p>
+            <p className="hidden md:block">{item.code}</p>
+            <p className="hidden md:block">{item.brand}</p>
+            <p className="hidden sm:block">{item.features}</p>
+            <p
+              className="text-red-500 cursor-pointer"
+              onClick={() => removeProduct(item._id)}
             >
-              {size}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className='flex gap-5'>
-      
-          {/* material */}
-          <div>
-            <p className='font-bold'>Material</p>
-            <input onChange={(e) => setMaterial(e.target.value)} type="text" placeholder='material' required />
+              X
+            </p>
           </div>
-      
+        ))
+      )}
+    </div>
+  )}
+</>
 
-        {/* product code */}
-        <div>
-          <p className='font-bold'>Product code </p>
-          <input onChange={(e) => setCode(e.target.value)} type="text" placeholder='product code' required />
-        </div>
-
-        {/* model */}
-        <div>
-          <p className='font-bold'>Model</p>
-          <input onChange={(e) => setModel(e.target.value)} type="text" placeholder='model' required />
-        </div>
-        {/* brand */}
-        <div>
-          <p className='font-bold'>Brand</p>
-          <input onChange={(e) => setBrand(e.target.value)} type="text" name="" id="" placeholder='brand' required />
-        </div>
-      </div>
-      {/* features */}
-      <div className='w-full'>
-        <p className='font-bold'>Features</p>
-        <textarea
-          onChange={(e) => setFeatures(e.target.value)}
-          className="w-full max-w-[400px] p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Write your description..."
-          required
-        />
-      </div>
-      {/* add */}
-<button
-        type="submit"
-        disabled={loading}
-        className={`w-28 py-3 px-5 rounded-2xl font-bold text-white transition ${
-          loading ? "bg-gray-500 cursor-not-allowed" : "bg-black hover:bg-gray-800"
-        }`}
-      >
-        {loading ? "Adding..." : "Add"}
-      </button>   
-       </form>
   );
 };
 
-export default Add;
+export default List;
