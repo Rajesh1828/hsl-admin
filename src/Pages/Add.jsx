@@ -150,7 +150,7 @@ const Add = ({token}) => {
       <div>
         <p className="mb-2 font-semibold">Product Sizes</p>
         <div className="flex flex-wrap gap-3">
-          {["A1", "A2", "A3", "A4", "A5", "F/C"].map((size) => (
+          {["B5", "A2", "A3", "A4", "A5","A6","A7", "F/C"].map((size) => (
             <div
               key={size}
               onClick={() =>
