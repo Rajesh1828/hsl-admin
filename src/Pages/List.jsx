@@ -61,54 +61,62 @@ const List = ({ token }) => {
   }, []);
 
   return (
-    <>
-      <p className="mb-2">All products List</p>
-      {loading ? (
-        // ✅ Tailwind loader style
-        <div className="flex justify-center items-center py-10">
-          <div className="h-8 w-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
-          <p className="ml-3 text-green-600">LoadingProducts...</p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-2">
-          <div className="hidden text-amber-950 md:grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] items-center py-1 px-2 bg-gray-100">
-            <b>Images</b>
-            <b>Name</b>
-            <b>Category</b>
-            <b>Price</b>
-            <b>Code</b>
-            <b>Brand</b>
-            <b>Features</b>
-            <b className="text-red-500">Action</b>
-          </div>
+  <>
+  <p className="mb-2">All products List</p>
 
-          {list.length === 0 ? (
-            <p className="text-center py-4 text-gray-500">No products found</p>
-          ) : (
-              list.map((item, index) => (
-               <div
-                key={index}
-                className="grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr] md:grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_1fr_1fr] items-center py-1 px-2 border bg-white/55"
-               >
-                <img className="w-16" src={item.images[0]} alt="" />
-                <p>{item.name}</p>
-                <p>{item.category}</p>
-                <p>₹{item.price}</p>
-                <p>{item.code}</p>
-                <p>{item.brand}</p>
-                <p>{item.features}</p>
-                <p
-                  className="text-red-500 cursor-pointer"
-                  onClick={() => removeProduct(item._id)}
-                >
-                  X
-                </p>
-               </div>
-               ))
-              )}
-        </div>
+  {loading ? (
+    <div className="flex justify-center items-center py-10">
+      <div className="h-8 w-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+      <p className="ml-3 text-green-600">Loading Products...</p>
+    </div>
+  ) : (
+    <div className="flex flex-col gap-2 mb-2">
+      {/* Header Row */}
+      <div className="hidden text-amber-950 md:grid md:grid-cols-8 items-center py-1 px-2 bg-gray-100">
+        <b>Images</b>
+        <b>Name</b>
+        <b>Category</b>
+        <b>Price</b>
+        <b>Code</b>
+        <b>Brand</b>
+        <b>Features</b>
+        <b className="text-red-500">Action</b>
+      </div>
+
+      {/* Rows */}
+      {list.length === 0 ? (
+        <p className="text-center py-4 text-gray-500">No products found</p>
+      ) : (
+        list.map((item) => (
+          <div
+            key={item._id}
+            className="
+              grid gap-2 p-2 border bg-white/55 items-center
+              grid-cols-2
+              sm:grid-cols-3
+              md:grid-cols-8
+            "
+          >
+            <img className="w-16" src={item.images[0]} alt={item.name} />
+            <p>{item.name}</p>
+            <p className="hidden md:block">{item.category}</p>
+            <p>₹{item.price}</p>
+            <p className="hidden md:block">{item.code}</p>
+            <p className="hidden md:block">{item.brand}</p>
+            <p className="hidden sm:block">{item.features}</p>
+            <p
+              className="text-red-500 cursor-pointer"
+              onClick={() => removeProduct(item._id)}
+            >
+              X
+            </p>
+          </div>
+        ))
       )}
-    </>
+    </div>
+  )}
+</>
+
   );
 };
 

@@ -4,31 +4,33 @@ import axios from 'axios';
 import { backend_url } from '../App';
 import { toast } from 'react-toastify';
 
-const Add = ({token}) => {
+const Add = ({ token }) => {
+  const [image, setImage] = useState(false);
+  const [image1, setImage1] = useState([]);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [mrp, setMrp] = useState("");
+  const [sizes, setSizes] = useState([]);
+  const [material, setMaterial] = useState("");
+  const [code, setCode] = useState("");
+  const [model, setModel] = useState("");
+  const [category, setCategory] = useState("certificate");
+  const [brand, setBrand] = useState("");
+  const [features, setFeatures] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [image, setImage] = useState(false)
-  const [name, setName] = useState("")
-  const [description, setDescription] = useState("")
-  const [price, setPrice] = useState("")
-  const [sizes, setSizes] = useState([])
-  const [material, setMaterial] = useState("")
-  const [code, setCode] = useState("")
-  const [model, setModel] = useState("")
-  const [category, setCategory] = useState("certificate")
-  const [brand, setBrand] = useState("")
-  const [features, setFeatures] = useState("")
-  const [loading, setLoading] = useState(false)
-
-  const onSubmitHandler = async(e)=>{
+  const onSubmitHandler = async (e) => {
     e.preventDefault();
-        setLoading(true); 
+    setLoading(true);
 
     try {
       const formData = new FormData();
-      formData.append("images", image);
+      formData.append("images", image); // <-- changed from "images" to "file" to match backend
       formData.append("name", name);
       formData.append("description", description);
       formData.append("price", price);
+      // formData.append("mrp", mrp); // ALWAYS append
       formData.append("sizes", JSON.stringify(sizes));
       formData.append("material", material);
       formData.append("code", code);
@@ -37,40 +39,39 @@ const Add = ({token}) => {
       formData.append("brand", brand);
       formData.append("features", features);
 
-      const response = await axios.post(backend_url + "/api/product/add", formData,{headers:{token}});
-      if(response.data.success){
+      const response = await axios.post(
+        backend_url + "/api/product/add",
+        formData,
+        { headers: { token } }
+      );
 
+      if (response.data.success) {
         toast.success(response.data.message);
-
         setImage(false);
-        setName("");
-        setDescription("");
-        setPrice("");
+        setName(" ");
+        setDescription(" ");
+        setPrice(" ");
+        // setMrp(" "); // reset MRP
         setSizes([]);
-        setMaterial("");
-        setCode("");
-        setModel("");
+        setMaterial(" ");
+        setCode(" ");
+        setModel(" ");
         setCategory("certificate");
-        setBrand("");
+        setBrand(" ");
         setFeatures("");
-      }
-      else{
+      } else {
         toast.error(response.data.message);
       }
     } catch (error) {
       console.log(error);
       toast.error(error.message);
-      
+    } finally {
+      setLoading(false);
     }
-    finally{
-      setLoading(false); 
-    }
-
-
-  }
+  };
 
   return (
-    <form onSubmit={onSubmitHandler} className="flex flex-col w-full items-start gap-4 p-4  rounded-lg ">
+    <form onSubmit={onSubmitHandler} className="flex flex-col w-full items-start gap-4 p-4 rounded-lg ">
       {/* Upload Image */}
       <div>
         <p className="mb-2 font-semibold">Upload Image</p>
@@ -116,15 +117,19 @@ const Add = ({token}) => {
             <option value="zipfiles">Zip Files</option>
             <option value="stripfiles">Strip Files</option>
             <option value="documentbag">Document bag</option>
-            <option value="displaybook">Display Book</option>
+            <option value="clothpouches">Cloth Pouches</option>
+            <option value="sheetprotectors">Sheet Protectors</option>
+            <option value="clothcovers">Cloth Covers</option>
+            <option value="reportfiles">Report Files</option>
+            <option value="expandingfiles">Expanding Files</option>
+            <option value="transparentpouches">Transparent Pouches</option>
+            <option value="l.shapedfolders">L-Shaped Folders</option>
+            <option value="open or side open covers">Open or Side Open Covers</option>
             <option value="spiralbooks">Spiral Books</option>
             <option value="zipperbags">Zipper Bags</option>
             <option value="securitybags">Security Bags</option>
             <option value="clipfiles">Clip Files</option>
             <option value="boxfiles">Box Files</option>
-
-
-
           </select>
         </div>
 
@@ -132,18 +137,37 @@ const Add = ({token}) => {
           <p className="mb-1 font-semibold">Product Price</p>
           <input
             onChange={(e) => setPrice(e.target.value)}
+            value={price}
             type="number"
             placeholder="24"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
+
+        {/* <div className="flex-1">
+          <p className="mb-1 font-semibold">Product MRP</p>
+          <input
+            onChange={(e) => setMrp(e.target.value)}
+            value={mrp}
+            type="number"
+            placeholder="30"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div> */}
+
+          {/* product MRP */}
+        <div>
+          <p className='font-bold'>Product MRP </p>
+          <input onChange={(e) => setCode(e.target.value)} type="text" placeholder='MRP' required />
+        </div>
+
       </div>
 
       {/* sizes */}
       <div>
         <p className="mb-2 font-semibold">Product Sizes</p>
         <div className="flex flex-wrap gap-3">
-          {["A1", "A2", "A3", "A4", "A5", "F/C"].map((size) => (
+          {["B5", "A2", "A3", "A4", "A5", "A6", "A7", "F/C"].map((size) => (
             <div
               key={size}
               onClick={() =>
@@ -163,34 +187,30 @@ const Add = ({token}) => {
             </div>
           ))}
         </div>
+        
       </div>
 
-      <div className='flex gap-5'>
-      
-          {/* material */}
-          <div>
-            <p className='font-bold'>Material</p>
-            <input onChange={(e) => setMaterial(e.target.value)} type="text" placeholder='material' required />
-          </div>
-      
-
-        {/* product code */}
+      <div className='flex flex-col md:flex-row gap-5'>
+        {/* material */}
         <div>
-          <p className='font-bold'>Product code </p>
-          <input onChange={(e) => setCode(e.target.value)} type="text" placeholder='product code' required />
+          <p className='font-bold'>Material</p>
+          <input onChange={(e) => setMaterial(e.target.value)} type="text" placeholder='material' required />
         </div>
 
+      
         {/* model */}
         <div>
           <p className='font-bold'>Model</p>
           <input onChange={(e) => setModel(e.target.value)} type="text" placeholder='model' required />
         </div>
+
         {/* brand */}
         <div>
           <p className='font-bold'>Brand</p>
-          <input onChange={(e) => setBrand(e.target.value)} type="text" name="" id="" placeholder='brand' required />
+          <input onChange={(e) => setBrand(e.target.value)} type="text" placeholder='brand' required />
         </div>
       </div>
+
       {/* features */}
       <div className='w-full'>
         <p className='font-bold'>Features</p>
@@ -201,8 +221,9 @@ const Add = ({token}) => {
           required
         />
       </div>
+
       {/* add */}
-<button
+      <button
         type="submit"
         disabled={loading}
         className={`w-28 py-3 px-5 rounded-2xl font-bold text-white transition ${
@@ -210,8 +231,8 @@ const Add = ({token}) => {
         }`}
       >
         {loading ? "Adding..." : "Add"}
-      </button>   
-       </form>
+      </button>
+    </form>
   );
 };
 
